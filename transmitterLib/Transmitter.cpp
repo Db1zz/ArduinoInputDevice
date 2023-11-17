@@ -3,23 +3,24 @@
 #include <thread>
 
 Transmitter::Transmitter(LPCWSTR comName, LPDCB comConfig)
-    : m_comName{ comName }
+    : m_pCommName{ comName }
 {
-    openHandle(m_comName);
+    openHandle(m_pCommName);
     if(comConfig == nullptr)
         setDefaultComConfig();
     else
-        SetCommState(m_hCom, comConfig);
+        SetCommState(m_pCommHandle, comConfig);
 }
 
 Transmitter::~Transmitter()
 {
-    CloseHandle(m_hCom);    
+    CloseHandle(m_pCommHandle);
+    delete m_pCommName, m_pCommHandle;
 }
 
 void Transmitter::setComName(LPCWSTR comName)
 {
-    m_comName = comName;
+    m_pCommName = comName;
 }
 
 BOOL Transmitter::setDefaultComConfig()
@@ -28,7 +29,7 @@ BOOL Transmitter::setDefaultComConfig()
     BOOL result;
     do
     {
-        result = GetCommState(m_hCom, config);
+        result = GetCommState(m_pCommHandle, config);
         if(!result) break;
         
         config->BaudRate = CBR_9600;
@@ -36,7 +37,7 @@ BOOL Transmitter::setDefaultComConfig()
         config->Parity   = NOPARITY;
         config->ByteSize = 8;
         
-        result = SetCommState(m_hCom, config);
+        result = SetCommState(m_pCommHandle, config);
         if(!result) break;
 
     } while(false);
@@ -45,33 +46,39 @@ BOOL Transmitter::setDefaultComConfig()
     return result;
 }
 
-HANDLE Transmitter::openHandle(LPCWSTR comName)
+HANDLE Transmitter::openHandle(LPCWSTR commName)
 {
-    m_hCom = CreateFileW(m_comName,
-                        GENERIC_READ | GENERIC_WRITE,
-                        0, 
-                        nullptr, 
-                        OPEN_EXISTING,
-                        0, 
-                        nullptr);
-
-    if(m_hCom == INVALID_HANDLE_VALUE)
+    if(m_pCommHandle == nullptr)
     {
-        std::cout << MSG_LIBRARY_NAME << "Handle to COM port ERROR: INVALID_HANDLE_VALUE" << MSG_FAILED << std::endl;
-        exit(-1);
+        m_pCommHandle = CreateFileW(m_pCommName,
+                                    GENERIC_READ | GENERIC_WRITE,
+                                    0, 
+                                    nullptr, 
+                                    OPEN_EXISTING,
+                                    0, 
+                                    nullptr);
+
+        if(m_pCommHandle == INVALID_HANDLE_VALUE)
+        {
+            std::cout << MSG_LIBRARY_NAME << "Handle to COM port ERROR: INVALID_HANDLE_VALUE" << MSG_FAILED << std::endl;
+            exit(-1);
+        }
+        return  m_pCommHandle;
     }
-    return  m_hCom;
+    return nullptr;   
 }
 
 BOOL Transmitter::closeHandle()
 {
-    return CloseHandle(m_hCom);
+    BOOL result = CloseHandle(m_pCommHandle);
+    m_pCommHandle = nullptr;
+    return result;
 }
 
 BOOL Transmitter::sendDataToComPort(char data)
 {   
     DWORD lpNumberOfBytesWritten;
-    BOOL result = WriteFile(m_hCom, 
+    BOOL result = WriteFile(m_pCommHandle, 
                             &data, 
                             sizeof(data), 
                             &lpNumberOfBytesWritten, 

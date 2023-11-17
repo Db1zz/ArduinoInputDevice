@@ -8,6 +8,8 @@
 
 class Input : public Mouse, public Keyboard
 {
+// Methods
+// ----------------------------------------
 public:
     Input(LPCWSTR comName);
 };

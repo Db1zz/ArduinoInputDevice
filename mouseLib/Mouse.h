@@ -5,6 +5,12 @@
 #include <Windows.h>
 #include <vector>
 
+// Messages
+#define MSG_SUCCESS      " - SUCCESS"
+#define MSG_FAILED       " - FAILED"
+#define MSG_LIBRARY_NAME "[Mouse]: "
+
+
 // Parameters
 #define MOUSE_CURSOR_STEP 10
 
@@ -17,8 +23,9 @@
 
 class Mouse : virtual public Transmitter
 {
-
-private: // Private DTypes
+// Custom data types
+// -------------------------------------
+private:
 
     struct Direction
     {
@@ -28,8 +35,8 @@ private: // Private DTypes
         int8_t sY;  // Y step
         Direction() : dx{ 0 }, dy{ 0 }, sX{ 0 }, sY{ 0 }{};
     };
-    
-public: // Public DTypes
+
+public:
     struct Point
     {
         int32_t x;
@@ -51,25 +58,30 @@ public: // Public DTypes
         Right
     };
 
-private: // Private Variables
-    bool testMode = false;
+// Variables
+// -------------------------------------
+private:
+    static int8_t m_mouseStep;
+
     int m_defaultMouseSpeedModifier = 10;
     int m_systemMouseSpeedModifier = 0;
 
-    // Screen resolution
     const uint32_t m_screenWidth = 1920;
     const uint32_t m_screenHeight = 1080;
 
-private: // Private Methods
+// Methods
+// -------------------------------------
+private: 
     int32_t getRandomInt(int32_t from, int32_t to);
-    void setMousePos(int8_t x, int8_t y);
     bool updatePosition(int32_t& currentPos, int32_t moveTo, int8_t step, bool isX);
-    Direction calculateDirection(Point currentPos, Point moveTo, int8_t step);     
+    Direction calculateDirection(Point& currentPos, Point& moveTo, int8_t step); 
+    void setMousePos(int8_t x, int8_t y);
 
-public: // Public Methods
+public:
     Mouse(LPCWSTR comName);
 
-    void setMousePos(Point moveTo, Point& currentPos, int8_t step);
+    void setMousePos(Point& moveTo, Point& currentPos, int8_t mouseStep);
+    bool setMouseStep(int8_t mouseStep);    
 
     template <typename T>
     void delay(T duration);
@@ -77,16 +89,16 @@ public: // Public Methods
     Point getMousePos();
     Point getRandomPoint();
 
-    Point bezierLinear(double t, Point p0, Point p1, std::vector<Point>& points);
-    Point bezierQuadratic(double t, Point p0, Point p2, std::vector<Point>& points);
-    Point bezierCubic(double t, Point p0, Point p3, std::vector<Point>& points);
+    Point bezierLinear(double t, Point& p0, Point& p1, std::vector<Point>& points);
+    Point bezierQuadratic(double t, Point& p0, Point& p2, std::vector<Point>& points);
+    Point bezierCubic(double t, Point& p0, Point& p3, std::vector<Point>& points);
 
     void press(Button button);
     void release(Button button);
     void click(Button button);
     void doubleClick(Button button);
 
-    void move(Point P3, Curve algorithm = Curve::BezierLinear, bool random = false, double speed = 0.01);
+    void move(Point& P3, Curve algorithm = Curve::BezierLinear, int8_t mouseStep = m_mouseStep);
 };
 
 #endif // Mouse_H

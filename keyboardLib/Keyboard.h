@@ -6,15 +6,15 @@
 #include <stdint.h>
 #include <set>
 
-// Signals
-#define KEYBOARD_PRESS       '0'
-#define KEYBOARD_RELEASE     '1'
-#define KEYBOARD_RELEASE_ALL '2'
-
 // Messages
 #define MSG_SUCCESS  " - SUCCESS"
 #define MSG_FAILED   " - FAILED"
 #define LIBRARY_NAME "[Keyboard]: "
+
+// Signals
+#define KEYBOARD_PRESS       '0'
+#define KEYBOARD_RELEASE     '1'
+#define KEYBOARD_RELEASE_ALL '2'
 
 // Keyboard modifiers
 #define KEY_LEFT_CTRL     0x80
@@ -80,10 +80,14 @@
 
 class Keyboard : virtual public Transmitter
 {
-private: // Private Variables
+// Variables
+// -------------------------------------
+private:
     std::set<int> m_pressedKeys;
 
-public: // Public Methods
+// Methods
+// -------------------------------------
+public:
     Keyboard(LPCWSTR comName);
     ~Keyboard();
 

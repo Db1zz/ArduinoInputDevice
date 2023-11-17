@@ -9,16 +9,17 @@ Mouse::Mouse(LPCWSTR comName)
     : Transmitter{ comName }
 {
     SystemParametersInfo(SPI_GETMOUSESPEED, 0, &m_systemMouseSpeedModifier, 0);
+    m_mouseStep = MOUSE_CURSOR_STEP;
 }
 
-Mouse::Point Mouse::bezierLinear(double t, Point p0, Point p1, std::vector<Mouse::Point>& points)
+Mouse::Point Mouse::bezierLinear(double t, Point& p0, Point& p1, std::vector<Mouse::Point>& points)
 {
     return 
     Point(p0.x + t *(p1.x - p0.x), 
           p0.y + t *(p1.y - p0.y));
 }
 
-Mouse::Point Mouse::bezierQuadratic(double t, Point p0, Point p2, std::vector<Mouse::Point>& points)
+Mouse::Point Mouse::bezierQuadratic(double t, Point& p0, Point& p2, std::vector<Mouse::Point>& points)
 {
     Point p1{ points[0] };
 
@@ -27,7 +28,7 @@ Mouse::Point Mouse::bezierQuadratic(double t, Point p0, Point p2, std::vector<Mo
           pow((1 - t), 2) * p0.y + 2 * (1 - t) * t * p1.y + pow(t, 2) * p2.y);
 }
 
-Mouse::Point Mouse::bezierCubic(double t, Point p0, Point p3, std::vector<Mouse::Point>& points)
+Mouse::Point Mouse::bezierCubic(double t, Point& p0, Point& p3, std::vector<Mouse::Point>& points)
 {
     Point p1{ points[0] };
     Point p2{ points[1] };
@@ -47,13 +48,27 @@ int32_t Mouse::getRandomInt(int32_t from, int32_t to)
     return dist(gen);
 }
 
-void Mouse::move(Point p1, Curve algorithm, bool random, double speed)
+bool Mouse::setMouseStep(int8_t step)
+{
+    if(step > 127 || step < -128)
+    {
+        std::cout << MSG_LIBRARY_NAME << "Incorrect step value: " << step << MSG_FAILED << std::endl;
+        return false;
+    }
+    else
+    {
+        m_mouseStep = step;
+        return true;
+    }
+}
+
+void Mouse::move(Point& p1, Curve algorithm, int8_t mouseStep)
 {
     double t = 0.00;
+    int8_t step = mouseStep;
     Point currPos = getMousePos();
     std::vector<Point> points;
-    int8_t step { MOUSE_CURSOR_STEP };
-    Mouse::Point (Mouse::*moveAlgorithm)(double, Point, Point, std::vector<Mouse::Point>&) = nullptr;
+    Mouse::Point (Mouse::*moveAlgorithm)(double, Point&, Point&, std::vector<Mouse::Point>&) = nullptr;
 
     if(algorithm == Curve::BezierLinear){
         moveAlgorithm = &Mouse::bezierLinear;
@@ -75,7 +90,7 @@ void Mouse::move(Point p1, Curve algorithm, bool random, double speed)
 
             if(t <= 0.50 && (i % 10 == 0) && step > 1)
                 --step;
-            else if(t > 0.50 && (i % 10 == 0) && step <= MOUSE_CURSOR_STEP)
+            else if(t > 0.50 && (i % 10 == 0) && step <= mouseStep)
                 ++step;
 
             setMousePos(p, currPos, step);
@@ -98,9 +113,16 @@ Mouse::Point Mouse::getRandomPoint()
     return Point(getRandomInt(0, m_screenWidth), (0, m_screenHeight));
 }
 
-void Mouse::setMousePos(Point moveTo, Point& currentPos, int8_t step)
+void Mouse::setMousePos(int8_t x, int8_t y)
 {
-    Direction direction = calculateDirection(currentPos, moveTo, step);
+    sendDataToComPort(MOUSE_MOVE_CURSOR);
+    sendDataToComPort(x);
+    sendDataToComPort(y);
+}
+
+void Mouse::setMousePos(Point& moveTo, Point& currentPos, int8_t mouseStep)
+{
+    Direction direction = calculateDirection(currentPos, moveTo, mouseStep);
 
     int err = direction.dx - direction.dy;
     bool reachedX = moveTo.x == currentPos.x ? true : false;
@@ -124,7 +146,7 @@ void Mouse::setMousePos(Point moveTo, Point& currentPos, int8_t step)
     }
 }
 
-Mouse::Direction Mouse::calculateDirection(Point currentPos, Point moveTo, int8_t step)
+Mouse::Direction Mouse::calculateDirection(Point& currentPos, Point& moveTo, int8_t step)
 {
     Direction direction;
     direction.dx = abs(moveTo.x - currentPos.x);
@@ -151,13 +173,6 @@ bool Mouse::updatePosition(int32_t& currentPos, int32_t moveTo, int8_t step, boo
         currentPos += step;
         return false;
     }
-}
-
-void Mouse::setMousePos(int8_t x, int8_t y)
-{
-    sendDataToComPort(MOUSE_MOVE_CURSOR);
-    sendDataToComPort(x);
-    sendDataToComPort(y);
 }
 
 void Mouse::press(Button button)

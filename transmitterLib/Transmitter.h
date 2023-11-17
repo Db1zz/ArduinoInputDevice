@@ -12,22 +12,25 @@
 
 class Transmitter
 {
-protected: // Protected Variables
-    HANDLE  m_hCom;
-    LPCWSTR m_comName;
-    BOOL    m_recivingData = false;
+// Variables
+// -------------------------------------
+private:
+    HANDLE  m_pCommHandle;
+    LPCWSTR m_pCommName;
 
-private: // Private Methods
+// Methods
+// -------------------------------------
+private:
     BOOL setDefaultComConfig();
-    
-public: // Public Methods
-    Transmitter(LPCWSTR comName, LPDCB comConfig = nullptr);
+
+public:
+    Transmitter(LPCWSTR commName, LPDCB comConfig = nullptr);
     ~Transmitter();
 
     void setComName(LPCWSTR comName);
-    LPCWSTR getComName() { return m_comName; }
+    LPCWSTR getComName() const { return m_pCommName; }
 
-    HANDLE getHandle() { return m_hCom; }
+    HANDLE getHandle() const { return m_pCommHandle; }
     HANDLE openHandle(LPCWSTR comName);
     BOOL closeHandle();
 
