@@ -1,17 +1,18 @@
 cmake_minimum_required(VERSION 3.12)
 project(Input)
 
-add_executable(main main.cpp)
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../transmitterLib)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../mouseLib)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../keyboardLib)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../inputLib)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../mouseLib)
+
+add_library(Input STATIC input.cpp input.h)
 
 set_target_properties(
-    main PROPERTIES
+    Input PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
 )
 
-target_link_libraries(main PUBLIC Input)
+target_link_libraries(Input PUBLIC Transmitter)
+target_link_libraries(Input PUBLIC Keyboard)
+target_link_libraries(Input PUBLIC Mouse)
