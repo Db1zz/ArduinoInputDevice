@@ -1,5 +1,5 @@
-#ifndef Mouse_H
-#define Mouse_H
+#ifndef MOUSE_H
+#define MOUSE_H
 
 #include "Transmitter.h"
 #include <Windows.h>
@@ -28,6 +28,7 @@ private: // Private DTypes
         int8_t sY;  // Y step
         Direction() : dx{ 0 }, dy{ 0 }, sX{ 0 }, sY{ 0 }{};
     };
+    
 public: // Public DTypes
     struct Point
     {

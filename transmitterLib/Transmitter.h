@@ -19,6 +19,7 @@ protected: // Protected Variables
 
 private: // Private Methods
     BOOL setDefaultComConfig();
+    
 public: // Public Methods
     Transmitter(LPCWSTR comName, LPDCB comConfig = nullptr);
     ~Transmitter();
