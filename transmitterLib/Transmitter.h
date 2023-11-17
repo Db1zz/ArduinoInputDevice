@@ -3,35 +3,34 @@
 
 #include <Windows.h>
 #include <stdint.h>
+#include <string>
 
 // Messages
-#define MSG_SUCCESS  " - SUCCESS"
-#define MSG_FAILED   " - FAILED"
+#define MSG_SUCCESS      " - SUCCESS"
+#define MSG_FAILED       " - FAILED"
 #define MSG_LIBRARY_NAME "[Transmitter]: "
-
-// Com port settings
-#define COM_BAUD_RATE 9600
 
 class Transmitter
 {
-protected:
-    HANDLE m_hCom;
+protected: // Protected Variables
+    HANDLE  m_hCom;
     LPCWSTR m_comName;
+    BOOL    m_recivingData = false;
 
-public:
-    Transmitter(LPCWSTR comName);
+private: // Private Methods
+    BOOL setDefaultComConfig();
+public: // Public Methods
+    Transmitter(LPCWSTR comName, LPDCB comConfig = nullptr);
     ~Transmitter();
 
     void setComName(LPCWSTR comName);
     LPCWSTR getComName() { return m_comName; }
 
     HANDLE getHandle() { return m_hCom; }
-    void openHandle(LPCWSTR comName);
+    HANDLE openHandle(LPCWSTR comName);
     BOOL closeHandle();
 
-    BOOL sendDataToComPort(uint8_t data);
-    void readDataFromComPort();
-
+    BOOL sendDataToComPort(char data);
 };
 
 #endif // TRANSMITTER_H

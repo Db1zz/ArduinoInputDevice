@@ -6,6 +6,11 @@
 #include <stdint.h>
 #include <set>
 
+// Signals
+#define KEYBOARD_PRESS       '0'
+#define KEYBOARD_RELEASE     '1'
+#define KEYBOARD_RELEASE_ALL '2'
+
 // Messages
 #define MSG_SUCCESS  " - SUCCESS"
 #define MSG_FAILED   " - FAILED"
@@ -76,7 +81,7 @@
 class Keyboard : virtual public Transmitter
 {
 private: // Private Variables
-    std::set<int> m_map;
+    std::set<int> m_pressedKeys;
 
 public: // Public Methods
     Keyboard(LPCWSTR comName);

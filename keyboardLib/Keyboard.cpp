@@ -5,71 +5,50 @@
 Keyboard::Keyboard(LPCWSTR comName)
     : Transmitter{ comName }
 {
-    std::cout << "Keyboard created!" << std::endl;
 }
 
 Keyboard::~Keyboard()
 {
-    std::cout << "Keyboard destroyed!" << std::endl;
 }
 
 bool Keyboard::press(uint8_t key)
 {
-    if(m_hCom != INVALID_HANDLE_VALUE)
+
+    if(m_pressedKeys.find(key) == m_pressedKeys.end())
     {
-        if(m_map.find(key) == m_map.end())
-        {
-            sendDataToComPort(',');
-            sendDataToComPort(key);
-            m_map.insert(key);
-            return true;
-        }
-        else{
-            std::cout << LIBRARY_NAME << "Key " << "'" << key << "'" << " is already pressed." << MSG_FAILED << std::endl;
-            return false;
-        }
+        sendDataToComPort(KEYBOARD_PRESS);
+        sendDataToComPort(key);
+        m_pressedKeys.insert(key);
+        return true;
     }
     else{
-        std::cout << LIBRARY_NAME << "Handle to COM port ERROR: INVALID_HANDLE_VALUE" << MSG_FAILED << std::endl;
+        std::cout << LIBRARY_NAME << "Key " << "'" << key << "'" << " is already pressed." << MSG_FAILED << std::endl;
         return false;
     }
+
 }
 bool Keyboard::release(uint8_t key)
 {
-    if(m_hCom != INVALID_HANDLE_VALUE)
+    if(m_pressedKeys.find(key) != m_pressedKeys.end())
     {
-        if(m_map.find(key) != m_map.end())
-        {
-            sendDataToComPort('.');
-            sendDataToComPort(key);
-            m_map.erase(key);
-            return true;
-        }
-        else{
-           std::cout << LIBRARY_NAME << "Key " << "'" << key << "'" << " is already released." << MSG_FAILED << std::endl;
-           return false;
-        }
+        sendDataToComPort(KEYBOARD_RELEASE);
+        sendDataToComPort(key);
+        m_pressedKeys.erase(key);
+        return true;
     }
     else{
-        std::cout << LIBRARY_NAME << "Handle to COM port ERROR: INVALID_HANDLE_VALUE" << MSG_FAILED << std::endl;
+        std::cout << LIBRARY_NAME << "Key " << "'" << key << "'" << " is already released." << MSG_FAILED << std::endl;
         return false;
     }
 }
 
 bool Keyboard::releaseAll()
 {
-    if(m_hCom != INVALID_HANDLE_VALUE)
+    for(auto key : m_pressedKeys)
     {
-        for(auto key : m_map)
-        {
-            sendDataToComPort('.');
-            sendDataToComPort(key);
-        }
-        m_map.clear();
+        sendDataToComPort(KEYBOARD_RELEASE_ALL);
+        sendDataToComPort(key);
     }
-    else{
-        std::cout << LIBRARY_NAME << "Handle to COM port ERROR: INVALID_HANDLE_VALUE" << MSG_FAILED << std::endl;
-        return false;
-    }
+    m_pressedKeys.clear();
     return true;
 }

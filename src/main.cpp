@@ -1,16 +1,12 @@
-#include "Keyboard.h"
+#include "input.h"
 #include <iostream>
-
+#include <chrono>
+#include <thread>
 
 int main()
-{   
-    {
-        Keyboard keyboard{L"//./COM12"};
-        keyboard.press(KEY_LEFT_SHIFT);
-        keyboard.press('a');
-        keyboard.release('a');
-        keyboard.release(KEY_LEFT_SHIFT);
-    }
+{  
+    Input input{ L"//./COM5" };
+    input.click(Input::Mouse::Left);
 
 
     std::cout << "Enter key to exit: ";
@@ -21,6 +17,5 @@ int main()
         if(k > 0 )
             break;
     }
-
     return 0;
 }
