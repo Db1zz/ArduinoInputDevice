@@ -1,4 +1,4 @@
-# ArduinoInputDevice== README ==
+# ArduinoInputDevice
  0.) Purpose
  1.) Prerequisites
  2.) Building
