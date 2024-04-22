@@ -1,17 +1,7 @@
-cmake_minimum_required(VERSION 3.12)
-project(Input)
+file (GLOB_RECURSE project_SRCS *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
+set (project_BIN ${PROJECT_NAME})
 
-add_executable(main main.cpp)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../transmitterLib)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../mouseLib)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../keyboardLib)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../inputLib)
-
-set_target_properties(
-    main PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED ON
-)
-
-target_link_libraries(main PUBLIC Input)
+add_library(staticlib STATIC ${project_SRCS})
+target_link_libraries(staticlib ${project_LIBS})
+set_target_properties(staticlib PROPERTIES VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}" OUTPUT_NAME ${project_BIN} CLEAN_DIRECT_OUTPUT 1)
+install(TARGETS staticlib DESTINATION lib)

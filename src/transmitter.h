@@ -1,10 +1,10 @@
-#include "Transmitter.h"
+#ifndef TRANSMITTER_H_
+#define TRANSMITTER_H_
+
 #include <iostream>
-#include <thread>
 
 Transmitter::Transmitter(LPCWSTR comName, LPDCB comConfig)
-    : m_pCommName{ comName }
-{
+    : m_pCommName{ comName } {
     openHandle(m_pCommName);
     if(comConfig == nullptr)
         setDefaultComConfig();
@@ -12,25 +12,22 @@ Transmitter::Transmitter(LPCWSTR comName, LPDCB comConfig)
         SetCommState(m_pCommHandle, comConfig);
 }
 
-Transmitter::~Transmitter()
-{
+Transmitter::~Transmitter() {
     CloseHandle(m_pCommHandle);
     delete m_pCommName, m_pCommHandle;
 }
 
-void Transmitter::setComName(LPCWSTR comName)
-{
+void Transmitter::setComName(LPCWSTR comName) {
     m_pCommName = comName;
 }
 
-BOOL Transmitter::setDefaultComConfig()
-{
+BOOL Transmitter::setDefaultComConfig() {
     LPDCB config = new DCB;
     BOOL result;
-    do
-    {
+    do {
         result = GetCommState(m_pCommHandle, config);
-        if(!result) break;
+        if (!result)
+            break;
         
         config->BaudRate = CBR_9600;
         config->StopBits = ONESTOPBIT;
@@ -38,18 +35,17 @@ BOOL Transmitter::setDefaultComConfig()
         config->ByteSize = 8;
         
         result = SetCommState(m_pCommHandle, config);
-        if(!result) break;
+        if (!result) 
+            break;
 
-    } while(false);
+    } while (false);
 
     delete config;
     return result;
 }
 
-HANDLE Transmitter::openHandle(LPCWSTR commName)
-{
-    if(m_pCommHandle == nullptr)
-    {
+HANDLE Transmitter::openHandle(LPCWSTR commName) {
+    if (m_pCommHandle == nullptr) {
         m_pCommHandle = CreateFileW(m_pCommName,
                                     GENERIC_READ | GENERIC_WRITE,
                                     0, 
@@ -58,12 +54,11 @@ HANDLE Transmitter::openHandle(LPCWSTR commName)
                                     0, 
                                     nullptr);
 
-        if(m_pCommHandle == INVALID_HANDLE_VALUE)
-        {
+        if (m_pCommHandle == INVALID_HANDLE_VALUE) {
             std::cout << MSG_LIBRARY_NAME << "Handle to COM port ERROR: INVALID_HANDLE_VALUE" << MSG_FAILED << std::endl;
             exit(-1);
         }
-        return  m_pCommHandle;
+        return m_pCommHandle;
     }
     return nullptr;   
 }
@@ -83,8 +78,10 @@ BOOL Transmitter::sendDataToComPort(char data)
                             sizeof(data), 
                             &lpNumberOfBytesWritten, 
                             nullptr);
-    if(result == false)
+    if (result == false)
         std::cout << MSG_LIBRARY_NAME <<  "Cannot transmit data to the com port." << MSG_FAILED << std::endl;
-    while(lpNumberOfBytesWritten < sizeof(data)){}
+    while (lpNumberOfBytesWritten < sizeof(data)){}
     return result;
 }
+
+#endif // TRANSMITTER_H_

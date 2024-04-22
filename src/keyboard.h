@@ -2,6 +2,7 @@
 #define KEYBOARD_H
 
 #include "Transmitter.h"
+
 #include <Windows.h>
 #include <stdint.h>
 #include <set>
@@ -78,8 +79,7 @@
 #define KEY_PAUSE         0xD0
 
 
-class Keyboard : virtual public Transmitter
-{
+class Keyboard : virtual public Transmitter {
 // Variables
 // -------------------------------------
 private:
@@ -94,7 +94,6 @@ public:
     bool press(uint8_t key);
     bool release(uint8_t key);
     bool releaseAll();
-
 };
 
 #endif // KEYBOARD_H

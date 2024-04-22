@@ -1,7 +1,7 @@
 #ifndef MOUSE_H
 #define MOUSE_H
 
-#include "Transmitter.h"
+#include "transmitter.h"
 #include <Windows.h>
 #include <vector>
 
